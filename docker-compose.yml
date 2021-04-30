@@ -1,0 +1,96 @@
+version: "3.8"
+services:
+    python_admin:
+        build:
+            dockerfile: Dockerfile
+            context: ./python/admin
+        ports:
+            - 8000:8000
+        depends_on:
+            - mysql
+        links:
+            - "mysql"
+        #networks:
+        #    python_admin:
+        #        ipv4_address: 172.100.10.5
+    python_admin_consumer:
+        build:
+            dockerfile: ConsumerDockerfile
+            context: ./python/admin
+        ports:
+            - 8100:8000
+        depends_on:
+            - mysql
+        links:
+            - "mysql"
+        #networks:
+        #    python_admin_consumer:
+        #        ipv4_address: 172.100.20.5
+    python_main:
+        build:
+            dockerfile: Dockerfile
+            context: ./python/main
+        ports:
+            - 5000:5000
+        depends_on:
+            - mysql
+        links:
+            - "mysql"
+            - "python_admin"
+        #networks:
+        #    python_main:
+        #        ipv4_address: 172.100.30.5
+    python_main_consumer:
+        build:
+            dockerfile: ConsumerDockerfile
+            context: ./python/main
+        ports:
+            - 5100:5000
+        depends_on:
+            - mysql
+        links:
+            - "mysql"
+        #networks:
+        #    python_main_consumer:
+        #        ipv4_address: 172.100.40.5
+    react_crud:
+        build:
+            dockerfile: Dockerfile
+            context: ./react-crud
+        ports:
+            - 3000:3000
+    mysql:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: password.123
+        volumes:
+            - "//c/Users/josem/OneDrive/Escritorio/Microserver Python/python/database:/var/lib/mysql"
+# networks:
+#     python_admin:
+#         driver: bridge
+#         ipam:
+#             driver: default
+#             config:
+#                 - subnet: 172.100.10.0/24
+#     python_admin_consumer:
+#         driver: bridge
+#         ipam:
+#             driver: default
+#             config:
+#                 - subnet: 172.100.20.0/24
+#     python_main:
+#         driver: bridge
+#         ipam:
+#             driver: default
+#             config:
+#                 - subnet: 172.100.30.0/24
+#     python_main_consumer:
+#         driver: bridge
+#         ipam:
+#             driver: default
+#             config:
+#                 - subnet: 172.100.40.0/24
